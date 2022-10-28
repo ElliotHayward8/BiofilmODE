@@ -1,0 +1,5 @@
+Do I need to change the growing rate to change depending on the amount of substrate, rather than just growing at the same rate until the maximum number of susceptible bacteria are present
+
+Currently, when it hits the maximum number of bacteria it just grows infinite persister cells, do I need to build in a limit to stop this from happening
+
+Check parameter values, do any of these need to be different?
