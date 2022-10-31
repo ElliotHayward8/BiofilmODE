@@ -49,6 +49,7 @@ def main():
     """
     grow_hours = 8  # Define the number of hours for the biofilm to grow
     treat_hours = 2  # Define the number of hours the biofilm is treated for
+    recov_hours = 5  # Define the number of hours the biofilm has to recover
     MIC = 0.000005  # Minimal Inhibitory Concentration of the antibiotic
 
     CA = 1000 * MIC  # Define the concentration of antibiotic present during the treatment phase
@@ -59,6 +60,7 @@ def main():
     K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
 
     t_grow, t_treat = np.linspace(0, grow_hours, grow_hours*3600), np.linspace(0, treat_hours, treat_hours*3600)
+    t_recov = np.linspace(0, recov_hours, recov_hours*3600)
 
     a_max, b_max = 1, 1
     kmaxs, kmaxp = 10, 0.1  # Define the killing rates of both types of bacteria
@@ -70,9 +72,13 @@ def main():
 
     sol2 = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A))
 
+    final_N = [sol2[-1, 0], sol2[-1, 1]]
+
+    sol3 = odeint(grow_phase, final_N, t_recov, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A))
+
     # Combine the solutions to produce one graph
-    full_sol = np.concatenate((sol, sol2))
-    t_total = np.concatenate((t_grow, t_treat + grow_hours))
+    full_sol = np.concatenate((sol, sol2, sol3))
+    t_total = np.concatenate((t_grow, t_treat + grow_hours, t_recov + grow_hours + treat_hours))
 
     plt.plot(t_total, full_sol[:, 0], 'b', label='Ns')
     plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
