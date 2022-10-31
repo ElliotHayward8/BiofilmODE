@@ -1,4 +1,4 @@
-Do I need to change the growing rate to change depending on the amount of substrate, rather than just growing at the same rate until the maximum number of susceptible bacteria are present
+Do I need to change the growing rate to change depending on the amount of substrate, rather than just growing at the same rate until the maximum number of susceptible bacteria are present (dm_i/dt = m_i . mu_max . CS/(CS + K1)
 
 Currently, when it hits the maximum number of bacteria it just grows infinite persister cells, do I need to build in a limit to stop this from happening
 
