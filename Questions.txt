@@ -1,7 +1,0 @@
-Do I need to change the growing rate to change depending on the amount of substrate, rather than just growing at the same rate until the maximum number of susceptible bacteria are present (from NetLogo: dm_i/dt = m_i . mu_max . CS/(CS + K1) and how can I equate the growth to mu_max
-
-Currently, when it hits the maximum number of bacteria it just grows infinite persister cells, do I need to build in a limit to stop this from happening
-
-Check parameter values, do any of these need to be different?
-
-Why does NetLogo stop at 5 hours ish on antibiotic and substrate model - is there some sort of limit on number of cells/where is the height limit

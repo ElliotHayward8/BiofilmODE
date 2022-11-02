@@ -27,13 +27,13 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
     :return: y: vector of the two differential equations
     """
     Ns, Np = N
-    eat_rate = 0.0001  # define the eating rate of the bacteria (how Ns affects CS)
+    eat_rate = 0.00001  # define the eating rate of the bacteria (how Ns affects CS)
 
     # Conc. of substrate depends on constant rate and the number of susceptible cells
     CS = CS0 - (Ns * eat_rate)
 
     # Calculate a and b depending on the concentration of antibiotic and substrate
-    if switch_type == 1: # Combination dependent switching
+    if switch_type == 1:  # Combination dependent switching
         a = (a_max * (1 - (CS/(CS + K1)))) + (a_max * (CA/(CA + K2)))
         b = 0.5 * (0.1 * b_max * (CS/(CS + K1))) + (b_max * (1 - (CA/(CA + K2))))  # 0.1 is to match the default model
     elif switch_type == 2:  # Substrate dependent switching
@@ -43,8 +43,8 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
         a = a_max * (CA/(CA + K2))
         b = b_max * (1 - (CA/(CA + K2)))
 
-    dNsdt = G*Ns + b*Np - a*Ns - kmaxs * CA/(CA + K_A)  # ODE for the rate of change of susceptible cells
-    dNpdt = a*Ns - b*Np - kmaxp * CA/(CA + K_A)  # ODE for the rate of change of persister cells
+    dNsdt = G*Ns + b*Np - a*Ns - kmaxs * (CA/(CA + K_A))  # ODE for the rate of change of susceptible cells
+    dNpdt = a*Ns - b*Np - kmaxp * (CA/(CA + K_A))  # ODE for the rate of change of persister cells
 
     y = [dNsdt, dNpdt]
 
@@ -64,22 +64,22 @@ def main():
     Ns0, Np0 = 10, 0  # Initial number of each type of cell
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
-    G = 0.75  # Growing rate of the bacteria (Need to equate to mu_max)
+    G = 0.6  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
     K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
-    switch = 3  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
+    switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
 
     t_grow, t_treat = np.linspace(0, grow_hours, grow_hours*3600), np.linspace(0, treat_hours, treat_hours*3600)
     t_recov = np.linspace(0, recov_hours, recov_hours*3600)
 
     a_max, b_max = 1, 1
-    kmaxs, kmaxp = 10, 0.1  # Define the killing rates of both types of bacteria
-    K_A = 6.4  # Define the half-saturation constant for the killing rates of susceptible and persister cells
+    kmaxs, kmaxp = 100, 0.1  # Define the killing rates of both types of bacteria
+    K_A = 0.1  # Define the half-saturation constant for the killing rates of susceptible and persister cells
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch))
 
     final_N = [sol[-1, 0], sol[-1, 1]]
 
-    sol2 = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch))
+    sol2 = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, 0, kmaxs, kmaxp, K_A, switch))
 
     final_N = [sol2[-1, 0], sol2[-1, 1]]
 
