@@ -57,14 +57,14 @@ def main():
     """
     grow_hours = 8  # Define the number of hours for the biofilm to grow
     treat_hours = 2  # Define the number of hours the biofilm is treated for
-    recov_hours = 5  # Define the number of hours the biofilm has to recover
+    recov_hours = 2  # Define the number of hours the biofilm has to recover
     MIC = 0.000005  # Minimal Inhibitory Concentration of the antibiotic
 
     CA = 1000 * MIC  # Define the concentration of antibiotic present during the treatment phase
     Ns0, Np0 = 10, 0  # Initial number of each type of cell
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
-    G = 2.63  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
+    G = 1.278  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
     K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
     switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
 
