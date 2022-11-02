@@ -27,7 +27,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
     :return: y: vector of the two differential equations
     """
     Ns, Np = N
-    eat_rate = 0.00001  # define the eating rate of the bacteria (how Ns affects CS)
+    eat_rate = 0.0000001  # define the eating rate of the bacteria (how Ns affects CS)
 
     # Conc. of substrate depends on constant rate and the number of susceptible cells
     CS = CS0 - (Ns * eat_rate)
@@ -64,7 +64,7 @@ def main():
     Ns0, Np0 = 10, 0  # Initial number of each type of cell
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
-    G = 2.7  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
+    G = 2.63  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
     K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
     switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
 
