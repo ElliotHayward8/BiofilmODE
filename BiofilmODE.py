@@ -72,14 +72,14 @@ def main():
     t_recov = np.linspace(0, recov_hours, recov_hours*3600)
 
     a_max, b_max = 1, 1
-    kmaxs, kmaxp = 100, 0.1  # Define the killing rates of both types of bacteria
+    kmaxs, kmaxp = 10, 0.1  # Define the killing rates of both types of bacteria
     K_A = 0.1  # Define the half-saturation constant for the killing rates of susceptible and persister cells
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch))
 
     final_N = [sol[-1, 0], sol[-1, 1]]
 
-    sol2 = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, 0, kmaxs, kmaxp, K_A, switch))
+    sol2 = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch))
 
     final_N = [sol2[-1, 0], sol2[-1, 1]]
 
