@@ -64,7 +64,7 @@ def main():
     Ns0, Np0 = 10, 0  # Initial number of each type of cell
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
-    G = 0.6  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
+    G = 2.7  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
     K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
     switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
 
