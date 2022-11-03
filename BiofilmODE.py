@@ -65,7 +65,7 @@ def main():
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
     G = 1.278  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
-    K1, K2 = 0.0035, 0.000005  # Half saturation rate for the substrate and antibiotic respectively
+    K1, K2 = 0.0035, 0.000005  # Half saturation constant for the substrate and antibiotic respectively
     switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
 
     t_grow, t_treat = np.linspace(0, grow_hours, grow_hours*3600), np.linspace(0, treat_hours, treat_hours*3600)
