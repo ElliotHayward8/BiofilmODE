@@ -48,6 +48,8 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     elif switch_type == 3:  # Antibiotic dependent switching
         a = a_max * (CA/(CA + K2))
         b = b_max * (1 - (CA/(CA + K2)))
+    else:
+        raise ValueError('switch_type must be 1, 2 or 3')
 
     dNsdt = G*Ns + b*Np - a*Ns - Ns * (kmaxs * (CA/(CA + K_A)))  # ODE for the rate of change of susceptible cells
     dNpdt = a*Ns - b*Np - Np * (kmaxp * (CA/(CA + K_A)))  # ODE for the rate of change of persister cells
@@ -63,7 +65,7 @@ def main():
     """
     Main function where parameter values are defined and the process is run
     """
-    grow_hours = 8  # Define the number of hours for the biofilm to grow
+    grow_hours = 20  # Define the number of hours for the biofilm to grow
     treat_hours = 2  # Define the number of hours the biofilm is treated for
     recov_hours = 5  # Define the number of hours the biofilm has to recover
     MIC = 0.000005  # Minimal Inhibitory Concentration of the antibiotic
