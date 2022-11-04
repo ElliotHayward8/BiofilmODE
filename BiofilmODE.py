@@ -49,7 +49,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
         a = a_max * (CA/(CA + K2))
         b = b_max * (1 - (CA/(CA + K2)))
 
-    dNsdt = G*Ns + b*Np - a*Ns - Ns * (kmaxs * (CA/(CA + K_A))) - Ns * 0.5 * (CS/(CS + 0.4))  # ODE for the rate of change of susceptible cells
+    dNsdt = G*Ns + b*Np - a*Ns - Ns * (kmaxs * (CA/(CA + K_A)))  # ODE for the rate of change of susceptible cells
     dNpdt = a*Ns - b*Np - Np * (kmaxp * (CA/(CA + K_A)))  # ODE for the rate of change of persister cells
 
     y = [dNsdt, dNpdt]
