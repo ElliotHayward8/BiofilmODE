@@ -34,6 +34,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
 
     # Growth rate depends on the concentration of substrate
     G = G * (CS/(CS + K1))
+
     # Calculate a and b depending on the concentration of antibiotic and substrate
     if switch_type == 1:  # Combination dependent switching
         a = (a_max * (1 - (CS/(CS + K1)))) + (a_max * (CA/(CA + K2)))
@@ -44,7 +45,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
     elif switch_type == 3:  # Antibiotic dependent switching
         a = a_max * (CA/(CA + K2))
         b = b_max * (1 - (CA/(CA + K2)))
-
+    print(K_A)
     dNsdt = G*Ns + b*Np - a*Ns - kmaxs * (CA/(CA + K_A))  # ODE for the rate of change of susceptible cells
     dNpdt = a*Ns - b*Np - kmaxp * (CA/(CA + K_A))  # ODE for the rate of change of persister cells
 
@@ -57,7 +58,7 @@ def main():
     """
     Main function where parameter values are defined and the process is run
     """
-    grow_hours = 8  # Define the number of hours for the biofilm to grow
+    grow_hours = 50  # Define the number of hours for the biofilm to grow
     treat_hours = 2  # Define the number of hours the biofilm is treated for
     recov_hours = 2  # Define the number of hours the biofilm has to recover
     MIC = 0.000005  # Minimal Inhibitory Concentration of the antibiotic
@@ -75,7 +76,7 @@ def main():
 
     a_max, b_max = 1, 1
     kmaxs, kmaxp = 10, 0.1  # Define the killing rates of both types of bacteria
-    K_A = 0.1  # Define the half-saturation constant for the killing rates of susceptible and persister cells
+    K_A = 6.4 * MIC  # Define the half-saturation constant for the killing rates of susceptible and persister cells
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch))
 
