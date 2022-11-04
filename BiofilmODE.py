@@ -27,11 +27,13 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, switch
     :return: y: vector of the two differential equations
     """
     Ns, Np = N
-    eat_rate = 0.0000001  # define the eating rate of the bacteria (how Ns affects CS)
+    eat_rate = 0.00001  # define the eating rate of the bacteria (how Ns affects CS)
 
     # Conc. of substrate depends on constant rate and the number of susceptible cells
     CS = CS0 - (Ns * eat_rate)
 
+    # Growth rate depends on the concentration of substrate
+    G = G * (CS/(CS + K1))
     # Calculate a and b depending on the concentration of antibiotic and substrate
     if switch_type == 1:  # Combination dependent switching
         a = (a_max * (1 - (CS/(CS + K1)))) + (a_max * (CA/(CA + K2)))
