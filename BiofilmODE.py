@@ -85,6 +85,14 @@ def run_biofilm(N, T, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, 
     return sol
 
 
+def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
+    """
+    A biofilm treatment strategy where the antibiotic is applied and removed for constant time periods (keep T">0.1)
+    :param T_grow: The time the biofilm grows before it is first treated
+    :param T1: Length of each treatment
+    :param T2: Length between treatments
+    """
+
 def main():
     """
     Main function where parameter values are defined and the process is run
