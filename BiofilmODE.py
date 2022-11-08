@@ -61,6 +61,30 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     return y
 
 
+def run_biofilm(N, T, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
+    """
+    Function to run the ODEs for time T with the inputted parameters
+    :param N: Number of persister and susceptible cells
+    :param CA: Concentration of antibiotic (always 0 when growing, gL^-1)
+    :param CS0: Concentration of substrate at the start (gL^-1)
+    :param a_max: Maximum susceptible to persister switching rate (h^-1)
+    :param b_max: Maximum persister to susceptible switching rate (h^-1)
+    :param G: Growth rate of the bacteria (h^-1)
+    :param K1: Half-saturation constant for substrate-dependent switching
+    :param K2: Half-saturation constant for substrate-dependent switching
+    :param kmaxs: Maximum killing rate of susceptible cells (h^-1)
+    :param kmaxp: Maximum killing rate of persister cells (h^-1)
+    :param K_A: Half-saturation constant so when CA = MIC, killing rate = mu_max = 1.25 h^-1
+    :param K_S: Half-saturation constant for the substrate S
+    :return: y: vector of the two differential equations
+    """
+    t_run = np.linspace(0, T, T*3600)
+
+    sol = odeint(grow_phase, N, t_run, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type))
+
+    return sol
+
+
 def main():
     """
     Main function where parameter values are defined and the process is run
