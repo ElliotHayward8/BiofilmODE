@@ -87,6 +87,41 @@ def run_biofilm(N, T, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, 
     return sol
 
 
+def consant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
+    """
+    A biofilm treatment strategy where the antibiotic is applied constantly
+    :param T_grow: The time the biofilm grows before it is first treated
+    :param T1: Length of each iteration
+    """
+    end_val = 0.5
+    t_grow = np.linspace(0, T_grow, int(3600 * T_grow))
+    t_treat = np.linspace(0, T1, int(3600 * T1))
+
+    sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type))
+    full_sol, t_total = sol, t_grow
+    final_N = [full_sol[-1, 0], full_sol[-1, 1]]
+
+    total_time = T_grow
+    check = 0
+    while sum(final_N) > end_val:
+        treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
+                                                               K_A, K_S, switch_type))
+
+        final_N = [treat_sol[-1, 0], treat_sol[-1, 1]]
+        for i in range(len(treat_sol)):
+            if check == 0:
+                if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
+                    check = 1
+                    print(i, t_total[i])
+                    treat_sol, t_treat = treat_sol[:i+1], t_treat[:i+1]
+                    end_time = t_total[i] + total_time
+
+        full_sol, t_total = np.concatenate((full_sol, treat_sol)), np.append(t_total, t_treat + total_time)
+        total_time = round(total_time + T1, 1)
+
+    return full_sol, t_total, end_time
+
+
 def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
     """
     A biofilm treatment strategy where the antibiotic is applied and removed for constant time periods (keep T">0.1)
