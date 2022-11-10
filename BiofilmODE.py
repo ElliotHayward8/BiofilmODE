@@ -148,7 +148,6 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
             if check == 0:
                 if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
                     check = 1
-                    print(i, t_total[i])
                     treat_sol, t_treat = treat_sol[:i+1], t_treat[:i+1]
                     end_time = t_total[i] + total_time
 
@@ -207,9 +206,13 @@ def main():
 
     full_sol, t_total, end_time = constant_switch(N, 8, 2, 0.4, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
 
+    con_sol, con_t, con_end = consant_treatment(N, 8, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+
+    plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
     plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
     plt.legend(loc='best'), plt.xlabel('Time'), plt.ylabel('Number of cells')
-    plt.axvline(x=end_time, color='r')
+    plt.axvline(x=end_time, color='c')
+    plt.axvline(x=con_end, color='y')
     plt.show()
     print(end_time)
 
