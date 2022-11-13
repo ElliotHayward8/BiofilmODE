@@ -87,7 +87,7 @@ def run_biofilm(N, T, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, 
     return sol
 
 
-def consant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
+def constant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
     """
     A biofilm treatment strategy where the antibiotic is applied constantly
     :param T_grow: The time the biofilm grows before it is first treated
@@ -170,19 +170,19 @@ def param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, k
     :param T2s: List of recovery times used
     :param a_maxs: List of a_max values used
     :param b_maxs: List of b_max values used
-    :return: For each combination of a_max and b_max it should provide the T1 and T2 values that gave the shortest
-    total treatment time
+    :return: For each combination of a_max and b_max it provides all the treatment times for each T1-T2 combination
     """
     a_max_results, b_max_results = [], []
     T1_results, T2_results, end_time_results = [], [], []
 
     for a_max in a_maxs:
         for b_max in b_maxs:
+            print(a_max, b_max)  # For tracking the progress of the scan
             for T1 in T1s:
                 for T2 in T2s:
                     full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
                                                                   kmaxs, kmaxp, K_A, K_S, 1)
-                    print(T1, T2)
+
                     if T1_results:
                         a_max_results.append(a_max)
                         b_max_results.append(b_max)
@@ -196,9 +196,39 @@ def param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, k
                         T2_results = [T2]
                         end_time_results = [end_time]
 
-    print(T1_results)
-    print(T2_results)
-    print(end_time_results)
+    return a_max_results, b_max_results, T1_results, T2_results, end_time_results
+
+
+def best_param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
+    """
+    A function to scan through potential values to see which treatment times are best for differing a and b values
+    :param T1s: List of treatment times used
+    :param T2s: List of recovery times used
+    :param a_maxs: List of a_max values used
+    :param b_maxs: List of b_max values used
+    :return: For each combination of a_max and b_max it the optimal T1-T2 combination
+    """
+    a_max_vals, b_max_vals = [], []
+    best_T1, best_T2, best_end_time = [], [], []
+    total_count = 0
+    for a_max in a_maxs:
+        for b_max in b_maxs:
+            print(a_max, b_max)  # For tracking the progress of the scan
+            a_max_vals.append(a_max), b_max_vals.append(b_max)
+            best_T1.append(0), best_T2.append(0)
+            best_end_time.append(5000000)
+            for T1 in T1s:
+                for T2 in T2s:
+                    total_count += 1
+                    full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
+                                                                  kmaxs, kmaxp, K_A, K_S, 1)
+
+                    if end_time < best_end_time[-1]:
+                        best_end_time[-1] = end_time
+                        best_T1[-1], best_T2[-1] = T1, T2
+
+    print(len(best_end_time), len(a_max_vals), total_count)
+    return a_max_vals, b_max_vals, best_T1, best_T2, best_end_time
 
 
 def main():
@@ -250,11 +280,19 @@ def main():
     T1s = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-    param_scan(N, 5, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, kmaxp, K_A, K_S)
+    """
+    a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_maxs,
+                                                                                        b_maxs, K1, K2, G, kmaxs, kmaxp,
+                                                                                        K_A, K_S)
+    """
+    a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
+                                                                                             a_maxs, b_maxs, K1, K2, G,
+                                                                                             kmaxs, kmaxp, K_A, K_S)
 
-    # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
+    #                                               kmaxp, K_A, K_S, switch)
     #
-    # con_sol, con_t, con_end = consant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
     #
     # plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
     # plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
