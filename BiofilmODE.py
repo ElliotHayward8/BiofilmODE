@@ -30,7 +30,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     :return: y: vector of the two differential equations
     """
     Ns, Np = N
-    eat_rate = 0.00003  # define the eating rate of the bacteria (how Ns affects CS)
+    eat_rate = 0.00001  # define the eating rate of the bacteria (how Ns affects CS)
 
     # Concentration of substrate depends on constant rate and the number of susceptible cells
     CS = CS0 - (Ns * eat_rate)
@@ -41,7 +41,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     # Calculate a and b depending on the concentration of antibiotic and substrate
     if switch_type == 1:  # Combination dependent switching
         a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
-        b = 0.5 * (0.1 * b_max * (CS / (CS + K1))) + (
+        b = 0.5 * (b_max * (CS / (CS + K1))) + (
                     b_max * (1 - (CA / (CA + K2))))  # 0.1 is to match the default model
     elif switch_type == 2:  # Substrate dependent switching
         a = a_max * (1 - (CS / (CS + K1)))
@@ -103,7 +103,7 @@ def consant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, km
 
     total_time = T_grow
     check = 0
-    while sum(final_N) > end_val:
+    while sum(final_N) > end_val and total_time < 250:
         treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                K_A, K_S, switch_type))
 
@@ -112,7 +112,6 @@ def consant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, km
             if check == 0:
                 if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
                     check = 1
-                    print(i, t_total[i])
                     treat_sol, t_treat = treat_sol[:i+1], t_treat[:i+1]
                     end_time = t_total[i] + total_time
 
@@ -140,7 +139,7 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
 
     total_time = T_grow
     check = 0
-    while sum(final_N) > end_val:
+    while sum(final_N) > end_val and total_time < 250:
         treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                K_A, K_S, switch_type))
         final_N = [treat_sol[-1, 0], treat_sol[-1, 1]]
@@ -164,6 +163,44 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
     return full_sol, t_total, end_time
 
 
+def param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
+    """
+    A function to scan through potential values to see which treatment times are best for differing a and b values
+    :param T1s: List of treatment times used
+    :param T2s: List of recovery times used
+    :param a_maxs: List of a_max values used
+    :param b_maxs: List of b_max values used
+    :return: For each combination of a_max and b_max it should provide the T1 and T2 values that gave the shortest
+    total treatment time
+    """
+    a_max_results, b_max_results = [], []
+    T1_results, T2_results, end_time_results = [], [], []
+
+    for a_max in a_maxs:
+        for b_max in b_maxs:
+            for T1 in T1s:
+                for T2 in T2s:
+                    full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
+                                                                  kmaxs, kmaxp, K_A, K_S, 1)
+                    print(T1, T2)
+                    if T1_results:
+                        a_max_results.append(a_max)
+                        b_max_results.append(b_max)
+                        T1_results.append(T1)
+                        T2_results.append(T2)
+                        end_time_results.append(end_time)
+                    else:
+                        a_max_results = [a_max]
+                        b_max_results = [b_max]
+                        T1_results = [T1]
+                        T2_results = [T2]
+                        end_time_results = [end_time]
+
+    print(T1_results)
+    print(T2_results)
+    print(end_time_results)
+
+
 def main():
     """
     Main function where parameter values are defined and the process is run
@@ -173,10 +210,13 @@ def main():
     Ns0, Np0 = 10, 0  # Initial number of each type of cell
     N = [Ns0, Np0]
     CS0 = 0.4  # Bulk concentration of substrate
+    """
+    Change G to reflect slower growth dependent on NetLogo model compared to this model
+    """
     G = 1.278  # Growing rate of the bacteria (Need to equate to mu_max), include the substrate concentration
     K1, K2 = 0.0035, 0.000005  # Half saturation constant for the substrate and antibiotic respectively
     switch = 1  # Define the switching type (1 = combo, 2 = substrate, 3 = antibiotic)
-    a_max, b_max = 1, 1  # (1, 1)
+    a_max, b_max = 1, 1  # Typical values - (1, 1)
     kmaxs, kmaxp = 10, 0.1  # Define the killing rates of both types of bacteria (10, 0.1)
     K_A = 6.4 * MIC  # Define the half-saturation constant for the killing rates of susceptible and persister cells
     K_S = 0.0035  # Define the half-saturation constant for the substrate (0.0035)
@@ -204,17 +244,24 @@ def main():
     plt.show()
     """
 
-    full_sol, t_total, end_time = constant_switch(N, 8, 2, 0.4, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    # Define parameters for the parameter scan
+    a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    T1s = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
-    con_sol, con_t, con_end = consant_treatment(N, 8, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    param_scan(N, 5, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, kmaxp, K_A, K_S)
 
-    plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
-    plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
-    plt.legend(loc='best'), plt.xlabel('Time'), plt.ylabel('Number of cells')
-    plt.axvline(x=end_time, color='c')
-    plt.axvline(x=con_end, color='y')
-    plt.show()
-    print(end_time)
+    # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    #
+    # con_sol, con_t, con_end = consant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    #
+    # plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
+    # plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
+    # plt.legend(loc='best'), plt.xlabel('Time'), plt.ylabel('Number of cells')
+    # plt.axvline(x=end_time, color='c')
+    # plt.axvline(x=con_end, color='y')
+    # plt.show()
 
 
 if __name__ == '__main__':
