@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.integrate import odeint
 
 """
@@ -41,8 +42,7 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     # Calculate a and b depending on the concentration of antibiotic and substrate
     if switch_type == 1:  # Combination dependent switching
         a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
-        b = 0.5 * (b_max * (CS / (CS + K1))) + (
-                    b_max * (1 - (CA / (CA + K2))))  # 0.1 is to match the default model
+        b = 0.5 * (b_max * (CS / (CS + K1))) + (b_max * (1 - (CA / (CA + K2))))
     elif switch_type == 2:  # Substrate dependent switching
         a = a_max * (1 - (CS / (CS + K1)))
         b = 0.1 * b_max * (CS / (CS + K1))
@@ -52,15 +52,13 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, s
     else:
         raise ValueError('switch_type must be 1, 2 or 3')
 
-    dNsdt = G * Ns + b * Np - a * Ns - Ns * (
-                kmaxs * (CA / (CA + K_A)))  # ODE for the rate of change of susceptible cells
-    dNpdt = a * Ns - b * Np - Np * (kmaxp * (CA / (CA + K_A)))  # ODE for the rate of change of persister cells
+    dNsdt = G * Ns + b * Np - a * Ns - Ns * (kmaxs * (CA / (CA + K_A)))  # Rate of change of susceptible cells
+    dNpdt = a * Ns - b * Np - Np * (kmaxp * (CA / (CA + K_A)))  # Rate of change of persister cells
 
-    y = [dNsdt, dNpdt]
     if CA != 0:
         if dNsdt > 0:
             print(G * Ns, b * Np, a * Ns, kmaxs * (CA / (CA + K_A)))
-    return y
+    return [dNsdt, dNpdt]
 
 
 def run_biofilm(N, T, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type):
@@ -111,9 +109,7 @@ def constant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, k
         for i in range(len(treat_sol)):
             if check == 0:
                 if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
-                    check = 1
-                    treat_sol, t_treat = treat_sol[:i+1], t_treat[:i+1]
-                    end_time = t_total[i] + total_time
+                    check, treat_sol, t_treat, end_time = 1, treat_sol[:i+1], t_treat[:i+1], t_total[i] + total_time
 
         full_sol, t_total = np.concatenate((full_sol, treat_sol)), np.append(t_total, t_treat + total_time)
         total_time = round(total_time + T1, 1)
@@ -128,17 +124,14 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
     :param T1: Length of each treatment
     :param T2: Length between treatments
     """
-    end_val = 0.5
-    t_grow = np.linspace(0, T_grow, int(3600 * T_grow))
-    t_treat = np.linspace(0, T1, int(3600 * T1))
+    end_val, t_grow, t_treat = 0.5, np.linspace(0, T_grow, int(3600 * T_grow)), np.linspace(0, T1, int(3600 * T1))
     t_regrow = np.linspace(0, T2, int(3600 * T2))
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch_type))
     full_sol, t_total = sol, t_grow
     final_N = [full_sol[-1, 0], full_sol[-1, 1]]
 
-    total_time = T_grow
-    check = 0
+    total_time, check = T_grow, 0
     while sum(final_N) > end_val and total_time < 250:
         treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                K_A, K_S, switch_type))
@@ -147,18 +140,18 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
             if check == 0:
                 if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
                     check = 1
-                    treat_sol, t_treat = treat_sol[:i+1], t_treat[:i+1]
-                    end_time = t_total[i] + total_time
+                    treat_sol, t_treat, end_time = treat_sol[:i+1], t_treat[:i+1], t_total[i] + total_time
 
         full_sol, t_total = np.concatenate((full_sol, treat_sol)), np.append(t_total, t_treat + total_time)
-        total_time = round(total_time + T1, 1)
+
+        total_time = total_time + T1
         regrow_sol = odeint(grow_phase, final_N, t_regrow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                  K_A, K_S, switch_type))
 
         final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
         if check == 0:
             full_sol, t_total = np.concatenate((full_sol, regrow_sol)), np.append(t_total, t_regrow + total_time)
-            total_time = round(total_time + T2, 1)
+            total_time += T2
 
     # Ensures end_time has a value
     if total_time >= 250:
@@ -181,23 +174,17 @@ def param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, k
 
     for a_max in a_maxs:
         for b_max in b_maxs:
-            print(a_max, b_max)  # For tracking the progress of the scan
+            print('a = ' + str(a_max) + '        b = ' + str(b_max))  # For tracking the progress of the scan
             for T1 in T1s:
                 for T2 in T2s:
                     full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
                                                                   kmaxs, kmaxp, K_A, K_S, 1)
 
                     if T1_results:
-                        a_max_results.append(a_max)
-                        b_max_results.append(b_max)
-                        T1_results.append(T1)
-                        T2_results.append(T2)
-                        end_time_results.append(end_time)
+                        a_max_results.append(a_max), b_max_results.append(b_max), T1_results.append(T1)
+                        T2_results.append(T2), end_time_results.append(end_time)
                     else:
-                        a_max_results = [a_max]
-                        b_max_results = [b_max]
-                        T1_results = [T1]
-                        T2_results = [T2]
+                        a_max_results, b_max_results, T1_results, T2_results = [a_max], [b_max], [T1], [T2]
                         end_time_results = [end_time]
 
     return a_max_results, b_max_results, T1_results, T2_results, end_time_results
@@ -214,24 +201,19 @@ def best_param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kma
     """
     a_max_vals, b_max_vals = [], []
     best_T1, best_T2, best_end_time = [], [], []
-    total_count = 0
     for a_max in a_maxs:
         for b_max in b_maxs:
-            print(a_max, b_max)  # For tracking the progress of the scan
+            print('a = ' + str(a_max) + '        b = ' + str(b_max))  # For tracking the progress of the scan
             a_max_vals.append(a_max), b_max_vals.append(b_max)
-            best_T1.append(0), best_T2.append(0)
-            best_end_time.append(5000000)
+            best_T1.append(0), best_T2.append(0), best_end_time.append(5000000)
             for T1 in T1s:
                 for T2 in T2s:
-                    total_count += 1
                     full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
                                                                   kmaxs, kmaxp, K_A, K_S, 1)
 
                     if end_time < best_end_time[-1]:
-                        best_end_time[-1] = end_time
-                        best_T1[-1], best_T2[-1] = T1, T2
+                        best_end_time[-1], best_T1[-1], best_T2[-1] = end_time, T1, T2
 
-    print(len(best_end_time), len(a_max_vals), total_count)
     return a_max_vals, b_max_vals, best_T1, best_T2, best_end_time
 
 
@@ -279,24 +261,55 @@ def main():
     """
 
     # Define parameters for the parameter scan
-    a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    a_s, b_s = np.linspace(0.1, 1.0, 12), np.linspace(0.1, 1.0, 12)
+    # T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    T1s, T2s = np.linspace(1/12, 1, 6), np.linspace(1/12, 1.5, 6)
 
     """
-    a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_maxs,
-                                                                                        b_maxs, K1, K2, G, kmaxs, kmaxp,
+    a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_s,
+                                                                                        b_s, K1, K2, G, kmaxs, kmaxp,
                                                                                         K_A, K_S)
     """
+    print(np.arange(len(a_s))-0.5)
     a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
-                                                                                             a_maxs, b_maxs, K1, K2, G,
+                                                                                             a_s, b_s, K1, K2, G,
                                                                                              kmaxs, kmaxp, K_A, K_S)
+
+    T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
+    T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))), np.reshape(T2_results, (len(b_s), len(a_s)))
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+    tk, x0 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], -0.5
+    x_len, y_len = len(a_s) + x0, len(b_s) + x0
+    im1, im2 = ax1.imshow(T1_results*60, cmap='viridis'), ax2.imshow(T2_results*60, cmap='viridis')
+
+    ax1.set_xticks(np.linspace(x0, x_len, 10), labels=tk), ax2.set_xticks(np.linspace(x0, x_len, 10), labels=tk)
+    ax1.set_yticks(np.linspace(x0, y_len, 10), labels=tk), ax2.set_yticks(np.linspace(x0, y_len, 10), labels=tk)
+    ax1.set_xticks(np.arange(len(a_s))-0.5, minor=True), ax2.set_xticks(np.arange(len(a_s))-0.5, minor=True)
+    ax1.set_yticks(np.arange(len(b_s))-0.5, minor=True), ax2.set_yticks(np.arange(len(b_s))-0.5, minor=True)
+    ax1.grid(which='minor', color='k', linestyle='-', linewidth=0.7), ax2.grid(which='minor', color='k', linestyle='-',
+                                                                               linewidth=0.7)
+    ax1.tick_params(axis='both', which='both', length=0), ax2.tick_params(axis='both', which='both', length=0)
+
+    divider1, divider2 = make_axes_locatable(ax1), make_axes_locatable(ax2)
+    cax1, cax2 = divider1.append_axes("right", size="5%", pad=0.2), divider2.append_axes("right", size="5%", pad=0.5)
+    cbar1, cbar2 = plt.colorbar(im1, cax=cax1), plt.colorbar(im2, cax=cax2)
+    cbar1.set_label(label='Optimised treatment duration (min)', size=17)
+    cbar2.set_label(label='Optimised treatment duration (min)', size=17)
+    ax1.set_xlabel('$a_{max}$'), ax2.set_xlabel('$a_{max}$'), ax1.set_ylabel('$b_{max}$'), ax2.set_ylabel('$b_{max}$')
+    plt.subplots_adjust(wspace=0.1)
+    plt.savefig("ParameterScan.pdf", bbox_inches='tight', pad_inches=0)
+    plt.show()
+
 
     # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
     #                                               kmaxp, K_A, K_S, switch)
     #
-    # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S, switch)
+    # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S,
+    #                                              switch)
     #
     # plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
     # plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
