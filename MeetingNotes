@@ -1,1 +1,16 @@
-Insert notes from the latest meeting here
+Plot the 3D graph
+
+Create a figure for switching from persister to susceptible
+
+Do the search including higher values to check if they are used, if they arent then this can be stated with a figure in
+the final report - in Interim just state they werent used becuase of this (speed it up)
+
+
+Evaluating with the NetLogo model as we can see when the ODE models are still viable and can be used as they are less
+computationally expensive
+
+Plot total Y-axis: treatment time against both on x-axis T_treat and T_recover (two separate lines, show how as
+total treatment times increase others typically increase)
+
+USE HPC - tutorial on website
+CSV returning total treatment time (remove original growth time), optimal T1, optimal T2 and the a and b values
