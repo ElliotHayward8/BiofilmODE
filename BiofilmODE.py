@@ -270,10 +270,10 @@ def main():
     # Define parameters for the parameter scan
     # a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    a_s, b_s = np.linspace(0.1, 1.0, 5), np.linspace(1.0, 0.1, 5)
+    a_s, b_s = np.linspace(0.1, 1.0, 60), np.linspace(1.0, 0.1, 60)
     # T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T1s, T2s = np.linspace(1/12, 1, 4), np.linspace(1/12, 2, 4)
+    T1s, T2s = np.linspace(1/12, 3, 50), np.linspace(1/12, 3, 50)
 
     """
     a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_s,
@@ -285,33 +285,33 @@ def main():
                                                                                              a_s, b_s, K1, K2, G,
                                                                                              kmaxs, kmaxp, K_A, K_S)
 
-    T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
-    T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
-                                                                                        (len(b_s), len(a_s))).T
-
-    fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
-    tkx, x0 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], -0.5
-    tky = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
-    x_len, y_len = len(a_s) + x0, len(b_s) + x0
-    im1, im2 = ax1.imshow(T1_results*60, cmap='viridis'), ax2.imshow(T2_results*60, cmap='viridis')
-
-    ax1.set_xticks(np.linspace(x0, x_len, 10), labels=tkx), ax2.set_xticks(np.linspace(x0, x_len, 10), labels=tkx)
-    ax1.set_yticks(np.linspace(x0, y_len, 10), labels=tky), ax2.set_yticks(np.linspace(x0, y_len, 10), labels=tky)
-    ax1.set_xticks(np.arange(len(a_s))-0.5, minor=True), ax2.set_xticks(np.arange(len(a_s))-0.5, minor=True)
-    ax1.set_yticks(np.arange(len(b_s))-0.5, minor=True), ax2.set_yticks(np.arange(len(b_s))-0.5, minor=True)
-    ax1.grid(which='minor', color='k', linestyle='-', linewidth=0.3), ax2.grid(which='minor', color='k', linestyle='-',
-                                                                               linewidth=0.3)
-    ax1.tick_params(axis='both', which='both', length=0), ax2.tick_params(axis='both', which='both', length=0)
-
-    divider1, divider2 = make_axes_locatable(ax1), make_axes_locatable(ax2)
-    cax1, cax2 = divider1.append_axes("right", size="5%", pad=0.2), divider2.append_axes("right", size="5%", pad=0.5)
-    cbar1, cbar2 = plt.colorbar(im1, cax=cax1), plt.colorbar(im2, cax=cax2)
-    cbar1.set_label(label='Optimised treatment duration (min)', size=10)
-    cbar2.set_label(label='Optimised treatment duration (min)', size=10)
-    ax1.set_xlabel('$a_{max}$'), ax2.set_xlabel('$a_{max}$'), ax1.set_ylabel('$b_{max}$'), ax2.set_ylabel('$b_{max}$')
-    fig.tight_layout(pad=5)
-    # plt.savefig("ParameterScan.pdf", bbox_inches='tight', pad_inches=0)
-    plt.show()
+    # T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
+    # T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
+    #                                                                                     (len(b_s), len(a_s))).T
+    #
+    # fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
+    # tkx, x0 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], -0.5
+    # tky = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    # x_len, y_len = len(a_s) + x0, len(b_s) + x0
+    # im1, im2 = ax1.imshow(T1_results*60, cmap='viridis'), ax2.imshow(T2_results*60, cmap='viridis')
+    #
+    # ax1.set_xticks(np.linspace(x0, x_len, 10), labels=tkx), ax2.set_xticks(np.linspace(x0, x_len, 10), labels=tkx)
+    # ax1.set_yticks(np.linspace(x0, y_len, 10), labels=tky), ax2.set_yticks(np.linspace(x0, y_len, 10), labels=tky)
+    # ax1.set_xticks(np.arange(len(a_s))-0.5, minor=True), ax2.set_xticks(np.arange(len(a_s))-0.5, minor=True)
+    # ax1.set_yticks(np.arange(len(b_s))-0.5, minor=True), ax2.set_yticks(np.arange(len(b_s))-0.5, minor=True)
+    # ax1.grid(which='minor', color='k', linestyle='-', linewidth=0.3), ax2.grid(which='minor', color='k', linestyle='-',
+    #                                                                            linewidth=0.3)
+    # ax1.tick_params(axis='both', which='both', length=0), ax2.tick_params(axis='both', which='both', length=0)
+    #
+    # divider1, divider2 = make_axes_locatable(ax1), make_axes_locatable(ax2)
+    # cax1, cax2 = divider1.append_axes("right", size="5%", pad=0.2), divider2.append_axes("right", size="5%", pad=0.5)
+    # cbar1, cbar2 = plt.colorbar(im1, cax=cax1), plt.colorbar(im2, cax=cax2)
+    # cbar1.set_label(label='Optimised treatment duration (min)', size=10)
+    # cbar2.set_label(label='Optimised treatment duration (min)', size=10)
+    # ax1.set_xlabel('$a_{max}$'), ax2.set_xlabel('$a_{max}$'), ax1.set_ylabel('$b_{max}$'), ax2.set_ylabel('$b_{max}$')
+    # fig.tight_layout(pad=5)
+    # # plt.savefig("ParameterScan.pdf", bbox_inches='tight', pad_inches=0)
+    # plt.show()
 
     # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
     #                                               kmaxp, K_A, K_S, switch)
