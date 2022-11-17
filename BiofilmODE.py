@@ -270,10 +270,10 @@ def main():
     # Define parameters for the parameter scan
     # a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    a_s, b_s = np.linspace(0.1, 1.0, 60), np.linspace(1.0, 0.1, 60)
+    a_s, b_s = np.linspace(0.1, 1.0, 5), np.linspace(1.0, 0.1, 5)
     # T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T1s, T2s = np.linspace(1/12, 3, 50), np.linspace(1/12, 3, 50)
+    T1s, T2s = np.linspace(1/12, 3, 5), np.linspace(1/12, 3, 5)
 
     """
     a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_s,
