@@ -1,7 +1,1 @@
-How do I limit the number of persister cells which can form? - show it running
-
-What goes in literature review and what goes in the problem descritption? - how do you tell where to put it
-
-Can you mention things in the problem description that you haven't explained later if you explain them further on?
-
-Do you have access to the paper by Bigger/ask for help getting access?
+For the parameter scan should I be looking for lowest total treatment time or the lowest total time
