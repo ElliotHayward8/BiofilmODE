@@ -316,10 +316,9 @@ def main():
     # plt.show()
 
     # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
-    #                                               kmaxp, K_A, K_S, switch)
+    #                                               kmaxp, K_A, K_S)
     #
-    # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S,
-    #                                              switch)
+    # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S)
     #
     # plt.plot(con_t, con_sol[:, 0], 'r', label='Constant Ns'), plt.plot(con_t, con_sol[:, 1], 'm', label='Constant Np')
     # plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')

@@ -1,7 +1,5 @@
 Plot the 3D graph
 
-Create a figure for switching from persister to susceptible
-
 Do the search including higher values to check if they are used, if they arent then this can be stated with a figure in
 the final report - in Interim just state they werent used becuase of this (speed it up)
 
@@ -14,3 +12,6 @@ total treatment times increase others typically increase)
 
 USE HPC - tutorial on website
 CSV returning total treatment time (remove original growth time), optimal T1, optimal T2 and the a and b values
+
+Use GraphMaker.py to plot the graph comparison for a and b being 1 and 0.1 - need to add plotting and run then sort out
+formatting
