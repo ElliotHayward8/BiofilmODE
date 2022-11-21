@@ -134,7 +134,7 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
     final_N = [full_sol[-1, 0], full_sol[-1, 1]]
 
     total_time, check = T_grow, 0
-    while sum(final_N) > end_val and total_time < 250:
+    while sum(final_N) > end_val and total_time < 150:
         treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                K_A, K_S))
         final_N = [treat_sol[-1, 0], treat_sol[-1, 1]]
@@ -142,24 +142,64 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
             if check == 0:
                 if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
                     check = 1
-                    treat_sol, t_treat, end_time = treat_sol[:i+1], t_treat[:i+1], t_total[i] + total_time
+                    treat_sol, t_treat, end_time = treat_sol[:i+1], t_treat[:i+1], t_grow[i] + total_time
 
         full_sol, t_total = np.concatenate((full_sol, treat_sol)), np.append(t_total, t_treat + total_time)
 
-        total_time = total_time + T1
-        regrow_sol = odeint(grow_phase, final_N, t_regrow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
-                                                                 K_A, K_S))
-
-        final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
         if check == 0:
+            total_time += T1
+            regrow_sol = odeint(grow_phase, final_N, t_regrow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
+                                                                     K_A, K_S))
+            final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
             full_sol, t_total = np.concatenate((full_sol, regrow_sol)), np.append(t_total, t_regrow + total_time)
             total_time += T2
 
     # Ensures end_time has a value
-    if total_time >= 250:
+    if total_time >= 150:
         end_time = total_time
 
     return full_sol, t_total, end_time
+
+
+def simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
+    """
+    A biofilm treatment strategy where the antibiotic is applied and removed for constant time periods (keep T">0.1)
+    :param T_grow: The time the biofilm grows before it is first treated
+    :param T1: Length of each treatment
+    :param T2: Length between treatments
+    """
+    end_val, t_grow, t_treat = 0.5, np.linspace(0, T_grow, int(3600 * T_grow)), np.linspace(0, T1, int(3600 * T1))
+    t_regrow = np.linspace(0, T2, int(3600 * T2))
+
+    sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S))
+    treat_total = 0
+    final_N = [sol[-1, 0], sol[-1, 1]]
+
+    total_time, check = T_grow, 0
+    while sum(final_N) > end_val and treat_total < 100:
+        treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
+                                                               K_A, K_S))
+        treat_total += T1
+        final_N = [treat_sol[-1, 0], treat_sol[-1, 1]]
+        for i in range(len(treat_sol)):
+            if check == 0:
+                if (treat_sol[i, 0] + treat_sol[i, 1]) < end_val:
+                    check = 1
+                    end_time = t_grow[i] + total_time
+                    treat_total += t_treat[i] - T1
+
+        if check == 0:
+            total_time += T1
+            total_time += T2
+            regrow_sol = odeint(grow_phase, final_N, t_regrow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
+                                                                     K_A, K_S))
+            final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
+
+    # Ensures end_time has a value
+    if treat_total >= 100:
+        end_time = total_time
+
+    return end_time, treat_total
 
 
 def param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
@@ -264,7 +304,7 @@ def main():
 
     plt.plot(t_total, full_sol[:, 0], 'b', label='Ns'), plt.plot(t_total, full_sol[:, 1], 'g', label='Np')
     plt.legend(loc='best'), plt.xlabel('t'), plt.ylabel('Number of cells')
-    # plt.grid()
+    plt.grid()
     plt.show()
     """
 
@@ -283,9 +323,9 @@ def main():
                                                                                         K_A, K_S)
     """
 
-    a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
-                                                                                             a_s, b_s, K1, K2, G,
-                                                                                             kmaxs, kmaxp, K_A, K_S)
+    # a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
+    #                                                                                          a_s, b_s, K1, K2, G,
+    #                                                                                          kmaxs, kmaxp, K_A, K_S)
 
     # T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
     # T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
@@ -315,8 +355,13 @@ def main():
     # # plt.savefig("ParameterScan.pdf", bbox_inches='tight', pad_inches=0)
     # plt.show()
 
-    # full_sol, t_total, end_time = constant_switch(N, 5, 0.5, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
-    #                                               kmaxp, K_A, K_S)
+    full_sol, t_total, end_time1 = constant_switch(N, 5, 0.1, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
+                                                   kmaxp, K_A, K_S)
+
+    end_time2, treat_total = simple_constant_switch(N, 5, 0.1, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A,
+                                                    K_S)
+
+    print(end_time1, end_time2)
     #
     # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S)
     #
