@@ -176,7 +176,7 @@ def simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, 
     final_N = [sol[-1, 0], sol[-1, 1]]
 
     total_time, check = T_grow, 0
-    while sum(final_N) > end_val and treat_total < 100:
+    while sum(final_N) > end_val and treat_total < 25:
         treat_sol = odeint(grow_phase, final_N, t_treat, args=(CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp,
                                                                K_A, K_S))
         treat_total += T1
@@ -196,7 +196,7 @@ def simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, 
             final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
 
     # Ensures end_time has a value
-    if treat_total >= 100:
+    if treat_total >= 25:
         end_time = total_time
 
     return end_time, treat_total
@@ -253,7 +253,7 @@ def best_param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kma
                     end_time, treat_total = simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
                                                                    kmaxs, kmaxp, K_A, K_S)
                     # Should I be tracking treat_total or end_time????
-                    if treat_total < best_end_time[-1]:
+                    if treat_total < best_treat_time[-1]:
                         best_treat_time[-1], best_end_time[-1], best_T1[-1], best_T2[-1] = treat_total, end_time, T1, T2
 
     fieldnames = ['a_max', 'b_max', 'T1', 'T2', 't_total', 'treat_total']
@@ -312,11 +312,11 @@ def main():
     # Define parameters for the parameter scan
     # a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    b_s = np.linspace(1.0, 0.1, 10)
-    a_s = np.linspace(1.0, 0.1, 10)  # np.linspace(0.1, 1.0, 2)
+    b_s = np.linspace(1.0, 0.1, 40)
+    a_s = np.linspace(1.0, 0.1, 40)  # np.linspace(0.1, 1.0, 2)
     # T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T1s, T2s = np.linspace(1/12, 1, 12), np.linspace(1/12, 1, 12)
+    T1s, T2s = np.linspace(1/12, 3, 36), np.linspace(1/12, 3, 36)
 
     """
     a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_s,
