@@ -5,5 +5,4 @@ the final report - in Interim just state they weren't used because of this (spee
 
 
 Plot total Y-axis: treatment time against both on x-axis T_treat and T_recover (two separate lines, show how as
-total treatment times increase others typically increase) - need to create an ordered dictionary going from lowest to
-highest then convert back to lists?
+total treatment times increase others typically increase)

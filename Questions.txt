@@ -1,1 +1,7 @@
 For the parameter scan should I be looking for lowest total treatment time or the lowest total time
+
+Check submission to HPC
+
+Check graph of treatment time vs T1T2
+
+Check the equation for a and b then can create all the graphs
