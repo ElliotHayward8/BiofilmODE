@@ -10,7 +10,7 @@ def main():
     Main function where parameter values are defined and the process is run
     """
 
-    a_max_results, b_max_results, T1_results, T2_results, end_time_results = [], [], [], [], []
+    a_max_results, b_max_results, T1_results, T2_results, end_time_results, treat_times = [], [], [], [], [], []
 
     file = open('output.csv')
     csvreader = csv.reader(file)
@@ -23,7 +23,7 @@ def main():
 
     for row in rows:
         a_max_results.append(float(row[0])), b_max_results.append(float(row[1])), T1_results.append(float(row[2]))
-        T2_results.append(float(row[3])), end_time_results.append(float(row[4]))
+        T2_results.append(float(row[3])), end_time_results.append(float(row[4])), treat_times.append(float(row[5]))
 
     a_s, b_s = set(a_max_results), set(b_max_results)
 

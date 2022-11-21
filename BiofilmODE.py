@@ -242,26 +242,27 @@ def best_param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kma
     :return: For each combination of a_max and b_max it the optimal T1-T2 combination
     """
     a_max_vals, b_max_vals = [], []
-    best_T1, best_T2, best_end_time = [], [], []
+    best_T1, best_T2, best_end_time, best_treat_time = [], [], [], []
     for a_max in a_maxs:
         for b_max in b_maxs:
             print('a = ' + str(a_max) + '        b = ' + str(b_max))  # For tracking the progress of the scan
             a_max_vals.append(a_max), b_max_vals.append(b_max)
-            best_T1.append(0), best_T2.append(0), best_end_time.append(500)
+            best_T1.append(0), best_T2.append(0), best_end_time.append(500), best_treat_time.append(500)
             for T1 in T1s:
                 for T2 in T2s:
-                    full_sol, t_total, end_time = constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
-                                                                  kmaxs, kmaxp, K_A, K_S)
+                    end_time, treat_total = simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
+                                                                   kmaxs, kmaxp, K_A, K_S)
+                    # Should I be tracking treat_total or end_time????
+                    if treat_total < best_end_time[-1]:
+                        best_treat_time[-1], best_end_time[-1], best_T1[-1], best_T2[-1] = treat_total, end_time, T1, T2
 
-                    if end_time < best_end_time[-1]:
-                        best_end_time[-1], best_T1[-1], best_T2[-1] = end_time, T1, T2
-
-    fieldnames = ['a_max', 'b_max', 'T1', 'T2', 't_total']
+    fieldnames = ['a_max', 'b_max', 'T1', 'T2', 't_total', 'treat_total']
     with open('output.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(i for i in fieldnames)
         for i in range(len(a_max_vals)):
-            writer.writerow([a_max_vals[i], b_max_vals[i], best_T1[i], best_T2[i], best_end_time[i]])
+            writer.writerow([a_max_vals[i], b_max_vals[i], best_T1[i], best_T2[i], best_end_time[i],
+                             best_treat_time[i]])
 
     return a_max_vals, b_max_vals, best_T1, best_T2, best_end_time
 
@@ -311,11 +312,11 @@ def main():
     # Define parameters for the parameter scan
     # a_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # b_maxs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    b_s = np.linspace(1.0, 0.1, 35)
-    a_s = [0.1]  # np.linspace(0.1, 1.0, 2)
+    b_s = np.linspace(1.0, 0.1, 10)
+    a_s = np.linspace(1.0, 0.1, 10)  # np.linspace(0.1, 1.0, 2)
     # T1s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     # T2s = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-    T1s, T2s = np.linspace(1/12, 3, 36), np.linspace(1/12, 3, 36)
+    T1s, T2s = np.linspace(1/12, 1, 12), np.linspace(1/12, 1, 12)
 
     """
     a_max_results, b_max_results, T1_results, T2_results, end_time_results = param_scan(N, 5, T1s, T2s, CA, CS0, a_s,
@@ -323,9 +324,9 @@ def main():
                                                                                         K_A, K_S)
     """
 
-    # a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
-    #                                                                                          a_s, b_s, K1, K2, G,
-    #                                                                                          kmaxs, kmaxp, K_A, K_S)
+    a_max_results, b_max_results, T1_results, T2_results, end_time_results = best_param_scan(N, 5, T1s, T2s, CA, CS0,
+                                                                                             a_s, b_s, K1, K2, G,
+                                                                                             kmaxs, kmaxp, K_A, K_S)
 
     # T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
     # T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
@@ -354,14 +355,13 @@ def main():
     # fig.tight_layout(pad=5)
     # # plt.savefig("ParameterScan.pdf", bbox_inches='tight', pad_inches=0)
     # plt.show()
-
-    full_sol, t_total, end_time1 = constant_switch(N, 5, 0.1, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
+    """
+    full_sol, t_total, end_time1 = constant_switch(N, 5, 0.1, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs,
                                                    kmaxp, K_A, K_S)
 
-    end_time2, treat_total = simple_constant_switch(N, 5, 0.1, 0.5, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A,
+    end_time2, treat_total = simple_constant_switch(N, 5, 0.1, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A,
                                                     K_S)
-
-    print(end_time1, end_time2)
+    """
     #
     # con_sol, con_t, con_end = constant_treatment(N, 5, 2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S)
     #
