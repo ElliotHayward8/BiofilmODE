@@ -27,16 +27,16 @@ def main():
 
     a_s, b_s = set(a_max_results), set(b_max_results)
 
-    T1_results, T2_results = np.asarray(T1_results), np.asarray(T2_results)
-    T1_results, T2_results = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
-                                                                                        (len(b_s), len(a_s))).T
+    T1_results, T2_results, treat_times = np.asarray(T1_results), np.asarray(T2_results), np.asarray(treat_times)
+    T1_results1, T2_results1 = np.reshape(T1_results, (len(b_s), len(a_s))).T, np.reshape(T2_results,
+                                                                                          (len(b_s), len(a_s))).T
 
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4))
     tkx, x0 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], -0.5
     tky = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
     x_len, y_len = len(a_s) + x0, len(b_s) + x0
 
-    im1, im2 = ax1.imshow(T1_results*60, cmap='viridis'), ax2.imshow(T2_results*60, cmap='viridis')
+    im1, im2 = ax1.imshow(T1_results1*60, cmap='viridis'), ax2.imshow(T2_results1*60, cmap='viridis')
 
     ax1.set_xticks(np.linspace(x0, x_len, 10), labels=tkx), ax2.set_xticks(np.linspace(x0, x_len, 10), labels=tkx)
     ax1.set_yticks(np.linspace(x0, y_len, 10), labels=tky), ax2.set_yticks(np.linspace(x0, y_len, 10), labels=tky)
@@ -56,6 +56,14 @@ def main():
     ax1.set_xlabel('$a_{max}$'), ax2.set_xlabel('$a_{max}$'), ax1.set_ylabel('$b_{max}$'), ax2.set_ylabel('$b_{max}$')
     fig.tight_layout(pad=5)
     plt.savefig("ParameterScanTrial.pdf", bbox_inches='tight', pad_inches=0)
+    plt.show()
+
+    treat_times, T1_results, T2_results = treat_times*60, T1_results*60, T2_results*60
+    plt.xlabel('Treatment time (mins)'), plt.ylabel('Time (mins)')
+    plt.scatter(treat_times, T1_results, color='red', label='$T_{treat}$')
+    plt.scatter(treat_times, T2_results, color='blue', label='$T_{recover}$')
+    plt.legend()
+    plt.savefig("TreatmenttimeagainstT1T2.pdf", bbox_inches='tight', pad_inches=0)
     plt.show()
 
 
