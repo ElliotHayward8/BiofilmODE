@@ -5,3 +5,6 @@ Check submission to HPC
 Check graph of treatment time vs T1T2
 
 Check the equation for a and b then can create all the graphs
+
+Check assumptions and the reasoning for each assumption - what assumptions will we try to alleviate through further work
+through the rest of the project
