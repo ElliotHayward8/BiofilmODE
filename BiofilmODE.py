@@ -99,7 +99,7 @@ def constant_treatment(N, T_grow, T1, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, k
     t_treat = np.linspace(0, T1, int(3600 * T1))
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S))
-    full_sol, t_total, treat_time = sol, t_grow, T_grow
+    full_sol, t_total, treat_time = sol, t_grow, 0
     final_N = [full_sol[-1, 0], full_sol[-1, 1]]
 
     total_time = T_grow
@@ -133,7 +133,7 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
     t_regrow = np.linspace(0, T2, int(3600 * T2))
 
     sol = odeint(grow_phase, N, t_grow, args=(0, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S))
-    full_sol, t_total, treat_time = sol, t_grow, T_grow
+    full_sol, t_total, treat_time = sol, t_grow, 0
     final_N = [full_sol[-1, 0], full_sol[-1, 1]]
 
     total_time, check = T_grow, 0
@@ -158,7 +158,6 @@ def constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, 
             final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
             full_sol, t_total = np.concatenate((full_sol, regrow_sol)), np.append(t_total, t_regrow + total_time)
             total_time += T2
-            treat_time += T2
 
     # Ensures end_time has a value
     if total_time >= 150:

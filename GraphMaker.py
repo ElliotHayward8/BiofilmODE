@@ -95,9 +95,23 @@ def main():
     ax3.legend(loc=1, prop=leg_properties), ax4.legend(loc=1, prop=leg_properties)
     ax5.legend(loc=1, prop=leg_properties), ax6.legend(loc=1, prop=leg_properties)
     ax7.legend(loc=1, prop=leg_properties), ax8.legend(loc=1, prop=leg_properties)
-    fig.set_size_inches(16, 10)
+    fig.set_size_inches(14, 9)
     fig.tight_layout(pad=2)
     plt.savefig("AlphaBetaComp.pdf", bbox_inches='tight', pad_inches=0)
+    plt.show()
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    ax1.plot(t_total4, full_sol4[:, 0], 'b', label='$N_s$'), ax1.plot(t_total4, full_sol4[:, 1], 'r', label='$N_p$')
+    ax2.plot(con_t4, con_sol4[:, 0], 'b', label='$N_s$'), ax2.plot(con_t4, con_sol4[:, 1], 'r', label='$N_p$')
+    ax2.text(800, 3500, 'T-time = ' + str(int(con_T_time4)), fontdict=text_properties)
+    ax1.text(600, 3500, 'T-time = ' + str(int(T_time4)), fontdict=text_properties)
+    ax1.legend(loc=1, prop=leg_properties), ax2.legend(loc=1, prop=leg_properties)
+    ax1.set_xlabel('Time (mins)', fontsize=13), ax2.set_xlabel('Time (mins)', fontsize=13)
+    ax1.set_ylabel('Number of cells', fontsize=13), ax2.set_ylabel('Number of cells', fontsize=13)
+    fig.set_size_inches(14, 6)
+    fig.tight_layout(pad=2)
+    plt.savefig("2figcomp.png")
     plt.show()
 
 
