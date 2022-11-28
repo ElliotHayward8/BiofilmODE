@@ -56,8 +56,8 @@ def main():
     T_time1, T_time2, T_time3, T_time4 = T_time1*60, T_time2*60, T_time3*60, T_time4*60
     con_T_time1, con_T_time2, con_T_time3, con_T_time4 = con_T_time1*60, con_T_time2*60, con_T_time3*60, con_T_time4*60
 
-    text_properties = {'weight': 'bold', 'fontsize': 11}
-    leg_properties = {'weight': 'bold'}
+    text_properties = {'fontsize': 16}
+    leg_properties = {'size': 13}
     top_y, bottom_y = 6000, -15
 
     fig, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8)) = plt.subplots(2, 4)
@@ -102,19 +102,22 @@ def main():
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
 
-    ax1.plot(t_total4, full_sol4[:, 0], 'b', label='$N_s$'), ax1.plot(t_total4, full_sol4[:, 1], 'r', label='$N_p$')
-    ax2.plot(con_t4, con_sol4[:, 0], 'b', label='$N_s$'), ax2.plot(con_t4, con_sol4[:, 1], 'r', label='$N_p$')
-    ax2.text(800, 3500, 'T-time = ' + str(int(con_T_time4)), fontdict=text_properties)
-    ax1.text(600, 3500, 'T-time = ' + str(int(T_time4)), fontdict=text_properties)
-    ax1.tick_params(axis='both', labelsize=13), ax2.tick_params(axis='both', labelsize=13)
-    ax1.set_title('Periodic Treatment', size=14)
-    ax2.set_title('Continuous Treatment', size=14)
+    ax1.plot(t_total4, full_sol4[:, 0], 'b', label='No. of susceptibles')
+    ax1.plot(t_total4, full_sol4[:, 1], 'r', label='No. of persisters')
+    ax2.plot(con_t4, con_sol4[:, 0], 'b', label='No. of susceptibles')
+    ax2.plot(con_t4, con_sol4[:, 1], 'r', label='No. of persisters')
+    # print(end_time4*60, con_end4*60)
+    ax2.text(800, 3500, '$t_T$ = ' + str(int(con_T_time4)), fontdict=text_properties)
+    ax1.text(600, 3500, '$t_T$ = ' + str(int(T_time4)), fontdict=text_properties)
+    ax1.tick_params(axis='both', labelsize=16), ax2.tick_params(axis='both', labelsize=16)
+    ax1.set_title('Periodic Treatment', size=16)
+    ax2.set_title('Continuous Treatment', size=16)
     ax1.legend(loc=1, prop=leg_properties), ax2.legend(loc=1, prop=leg_properties)
-    ax1.set_xlabel('Time (mins)', fontsize=13), ax2.set_xlabel('Time (mins)', fontsize=13)
-    ax1.set_ylabel('Number of cells', fontsize=13), ax2.set_ylabel('Number of cells', fontsize=13)
-    fig.set_size_inches(14, 6)
+    ax1.set_xlabel('Time (mins)', fontsize=16), ax2.set_xlabel('Time (mins)', fontsize=16)
+    ax1.set_ylabel('Number of cells', fontsize=16), ax2.set_ylabel('Number of cells', fontsize=16)
+    fig.set_size_inches(12, 6)
     fig.tight_layout(pad=2)
-    plt.savefig("2figcomp.png")
+    plt.savefig("2figcomp.pdf")
     plt.show()
 
 
