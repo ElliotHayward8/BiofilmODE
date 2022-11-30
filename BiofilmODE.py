@@ -45,6 +45,8 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
 
     a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
     b = 0.5 * (b_max * (CS / (CS + K1))) + (b_max * (1 - (CA / (CA + K2))))
+    # a = a_max * ((CA / (CA + K2)) + (1 - (CA / (CA + K2))(1 - (CS / (CS + K1)))))
+    # b = a_max * (1 - (CA / (CA + K2)) + ((CA / (CA + K2))((CS / (CS + K1)))))
     """
     elif switch_type == 2:  # Substrate dependent switching
         a = a_max * (1 - (CS / (CS + K1)))
