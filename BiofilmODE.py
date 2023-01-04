@@ -50,10 +50,11 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
 
     dNsdt = G * Ns + b * Np - a * Ns - Ns * (kmaxs * (CA / (CA + K_A)))  # Rate of change of susceptible cells
     dNpdt = a * Ns - b * Np - Np * (kmaxp * (CA / (CA + K_A)))  # Rate of change of persister cells
-
+    """
     if CA != 0:
         if dNsdt > 0:
             print(G * Ns, b * Np, a * Ns, kmaxs * (CA / (CA + K_A)))
+    """
     return [dNsdt, dNpdt]
 
 
