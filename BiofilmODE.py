@@ -43,20 +43,11 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
 
     # Calculate a and b depending on the concentration of antibiotic and substrate
 
-    a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
-    b = 0.5 * (b_max * (CS / (CS + K1))) + (b_max * (1 - (CA / (CA + K2))))
-    # a = a_max * ((CA / (CA + K2)) + (1 - (CA / (CA + K2))(1 - (CS / (CS + K1)))))
-    # b = b_max * (1 - (CA / (CA + K2)) + ((CA / (CA + K2))((CS / (CS + K1)))))
-    """
-    elif switch_type == 2:  # Substrate dependent switching
-        a = a_max * (1 - (CS / (CS + K1)))
-        b = 0.1 * b_max * (CS / (CS + K1))
-    elif switch_type == 3:  # Antibiotic dependent switching
-        a = a_max * (CA / (CA + K2))
-        b = b_max * (1 - (CA / (CA + K2)))
-    else:
-        raise ValueError('switch_type must be 1, 2 or 3')
-    """
+    # a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
+    # b = 0.5 * (b_max * (CS / (CS + K1))) + (b_max * (1 - (CA / (CA + K2))))
+    a = a_max * ((CA / (CA + K2)) + (1 - (CA / (CA + K2))(1 - (CS / (CS + K1)))))
+    b = b_max * (1 - (CA / (CA + K2)) + ((CA / (CA + K2))((CS / (CS + K1)))))
+
     dNsdt = G * Ns + b * Np - a * Ns - Ns * (kmaxs * (CA / (CA + K_A)))  # Rate of change of susceptible cells
     dNpdt = a * Ns - b * Np - Np * (kmaxp * (CA / (CA + K_A)))  # Rate of change of persister cells
 
