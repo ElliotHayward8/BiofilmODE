@@ -45,8 +45,8 @@ def grow_phase(N, t, CA, CS0, a_max, b_max, K1, K2, G, kmaxs, kmaxp, K_A, K_S):
 
     # a = (a_max * (1 - (CS / (CS + K1)))) + (a_max * (CA / (CA + K2)))
     # b = 0.5 * (b_max * (CS / (CS + K1))) + (b_max * (1 - (CA / (CA + K2))))
-    a = a_max * ((CA / (CA + K2)) + (1 - (CA / (CA + K2))(1 - (CS / (CS + K1)))))
-    b = b_max * (1 - (CA / (CA + K2)) + ((CA / (CA + K2))((CS / (CS + K1)))))
+    a = a_max * ((CA / (CA + K2)) + (1 - (CA / (CA + K2)) * (1 - (CS / (CS + K1)))))
+    b = b_max * (1 - (CA / (CA + K2)) + ((CA / (CA + K2)) * ((CS / (CS + K1)))))
 
     dNsdt = G * Ns + b * Np - a * Ns - Ns * (kmaxs * (CA / (CA + K_A)))  # Rate of change of susceptible cells
     dNpdt = a * Ns - b * Np - Np * (kmaxp * (CA / (CA + K_A)))  # Rate of change of persister cells
@@ -194,7 +194,7 @@ def simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G, 
                                                                      K_A, K_S))
             final_N = [regrow_sol[-1, 0], regrow_sol[-1, 1]]
 
-    # Ensures end_time has a value
+    # Ensures end_time has a value, ends if time reaches 25 hours
     if treat_total >= 25:
         end_time = total_time
 
@@ -251,7 +251,7 @@ def best_param_scan(N, T_grow, T1s, T2s, CA, CS0, a_maxs, b_maxs, K1, K2, G, kma
                 for T2 in T2s:
                     end_time, treat_total = simple_constant_switch(N, T_grow, T1, T2, CA, CS0, a_max, b_max, K1, K2, G,
                                                                    kmaxs, kmaxp, K_A, K_S)
-                    # Should I be tracking treat_total or end_time????
+
                     if treat_total < best_treat_time[-1]:
                         best_treat_time[-1], best_end_time[-1], best_T1[-1], best_T2[-1] = treat_total, end_time, T1, T2
 
